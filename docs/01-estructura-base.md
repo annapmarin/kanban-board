@@ -6,7 +6,12 @@ L'estructura base proposada que s'ha creat pel projecte és la següent:
 ├── css/
 │   └── style.css
 ├── js/
-│   └── script.js
+│   └── script.js    <- punt d'entrada
+│   └── storage.js   <- carregar i guardar tasques
+│   └── model.js     <- model de la tasca i creació d'objectes
+│   └── ui.js        <- renderitzar tauler, formulari, targetes
+│   └── filtres.js   <- tasques filtrades, cerca, estadístiques
+│   └── dragdrop.js  <- tots els esdeveniments de drag & drop
 ├── img/
 ├── docs/
 └── README.md
