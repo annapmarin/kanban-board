@@ -1,0 +1,30 @@
+/* ===== TEMA GLOBAL ===== */
+:root {
+    color-scheme: dark;
+
+    /* Fons */
+    --bg-base: #0f172a;
+    --bg-surface: #1e293b;
+    --bg-card: #334155;
+
+    /* Text */
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+
+    /* Accent */
+    --accent: #6366f1;
+
+    /* Prioritats */
+    --prioritat-alta: #ef4444;
+    --prioritat-mitjana: #f59e0b;
+    --prioritat-baixa: #22c55e;
+
+    /* Drag & drop */
+    --drag-over: #6366f1;
+}
+
+body {
+    background-color: var(--bg-base);
+    color: var(--text-primary);
+    font-family: 'DM Sans', sans-serif;
+}
