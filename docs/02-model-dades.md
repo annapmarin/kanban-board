@@ -1,0 +1,1 @@
+# Model de dades i persistència
