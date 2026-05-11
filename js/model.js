@@ -21,6 +21,6 @@ export function crearTasca(
         prioritat,
         dataVenciment,
         estat,
-        dataCreacio: new Date().toISOString.split("T")[0]
+        dataCreacio: new Date().toISOString().split("T")[0]
     };
 }
