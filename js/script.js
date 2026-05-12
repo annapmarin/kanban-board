@@ -2,8 +2,10 @@ import { crearTasca } from "./model.js";
 import { carregarTasques, guardarTasques } from "./storage.js";
 import { assignarCallbacks, renderTauler, preomplirFormulari, ocultarFormulari, actualitzarEstadistiques } from "./ui.js";
 import { assignarOnDrop, iniciarDragDrop } from "./dragdrop.js";
+import { getTasquesFiltrades } from "./filtres.js";
 
 let tasques = []
+let filtres = { estat: "", prioritat: "", cerca: "" }
 
 // CRUD
 function afegirTasca(dades) {
@@ -40,7 +42,8 @@ function canviarEstat(id, nouEstat) {
 // Sincronització
 function sincronitzar() {
     guardarTasques(tasques)
-    renderTauler(tasques)
+    const filtrades = getTasquesFiltrades(tasques, filtres)
+    renderTauler(filtrades)
     iniciarDragDrop()
     actualitzarEstadistiques(tasques)
 }
@@ -87,6 +90,21 @@ function assignarListeners() {
     document.getElementById("btn-tancar-form").addEventListener("click", ocultarFormulari)
     document.getElementById("btn-cancelar").addEventListener("click", ocultarFormulari)
     document.getElementById("formulari-tasca").addEventListener("submit", gestionarSubmit)
+
+    document.getElementById("cerca-text").addEventListener("input", (e) => {
+        filtres.cerca = e.target.value.trim()
+        sincronitzar()
+    })
+
+    document.getElementById("filtre-estat").addEventListener("change", (e) => {
+        filtres.estat = e.target.value
+        sincronitzar()
+    })
+
+    document.getElementById("filtre-prioritat").addEventListener("change", (e) => {
+        filtres.prioritat = e.target.value
+        sincronitzar()
+    })
 }
 
 // Init
