@@ -11,8 +11,11 @@ export function assignarOnDrop(callback) {
  *  Se crida després de renderitzar el tauler.
  */
 export function iniciarDragDrop() {
-    const columents = document.querySelector(".columna-drop")
-    columents.forEach((columna) => {
+    const columnes = document.querySelectorAll(".columna-drop")
+    columnes.forEach((columna) => {
+        if (columna.dataset.dropInit === "true") return
+        columna.dataset.dropInit = "true"
+
         columna.addEventListener("dragover", onDragOver)
         columna.addEventListener("dragleave", onDragLeave)
         columna.addEventListener("drop", onDrop)
@@ -77,7 +80,7 @@ function onDragLeave(e) {
     // Comprovam que realment sortim de la columna i no
     // d'un element fill
     if (!e.currentTarget.contains(e.relatedTarget)) {
-        e.currentTarget.classList.remove("drag-over");
+        e.currentTarget.classList.remove("drag-over")
     }
 }
 
@@ -86,13 +89,13 @@ function onDragLeave(e) {
  *  Recupera l'ID i crida el callback amb el nou estat.
  */
 function onDrop(e) {
-    e.preventDefault();
-    e.currentTarget.classList.remove("drag-over");
+    e.preventDefault()
+    e.currentTarget.classList.remove("drag-over")
 
-    const id = e.dataTransfer.getData("text/plain");
-    const nouEstat = e.currentTarget.dataset.estat;
+    const id = e.dataTransfer.getData("text/plain")
+    const nouEstat = e.currentTarget.dataset.estat
 
     if (id && nouEstat) {
-        onDropCallback(id, nouEstat);
+        onDropCallback(id, nouEstat)
     }
 }

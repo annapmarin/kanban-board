@@ -7,15 +7,15 @@ const COLUMNES = {
 
 // Mapa de prioritats
 const PRIORITAT_ESTILS = {
-    alta: { classe: "prioritat-alta", etiqueta: "🔴 Alta" },
-    mitjana: { classe: "prioritat-mitjana", etiqueta: "🟡 Mitjana"},
-    baixa: { classe: "prioritat-baixa", etiqueta: "🟢 Baixa" }
+    alta: { classeColor: "bg-red-900 text-red-300", etiqueta: "Alta" },
+    mitjana: { classeColor: "bg-amber-900 text-amber-300", etiqueta: "Mitjana" },
+    baixa: { classeColor: "bg-green-900 text-green-300", etiqueta: "Baixa" },
 }
 
 // Callbacks
-let onEditar = () => {}
-let onEliminar = () => {}
-let onCanviarEstat = () => {}
+let onEditar = () => { }
+let onEliminar = () => { }
+let onCanviarEstat = () => { }
 
 /**
  * Assigna els callbacks de les accions de les targetes.
@@ -25,7 +25,7 @@ let onCanviarEstat = () => {}
  */
 export function assignarCallbacks(callbacks) {
     onEditar = callbacks.onEditar ?? onEditar
-    onEliminar = callbacks.onEliminar ?? onEditar
+    onEliminar = callbacks.onEliminar ?? onEliminar
     onCanviarEstat = callbacks.onCanviarEstat ?? onCanviarEstat
 }
 
@@ -49,7 +49,7 @@ export function renderTauler(tasques) {
         if (!columna) return
 
         const targeta = crearTargeta(tasca)
-        columna.appendChild(tasques)
+        columna.appendChild(targeta)
     })
 
     actualitzarComptadors(tasques)
@@ -62,10 +62,10 @@ export function renderTauler(tasques) {
  * @returns {HTMLElement} - Targeta
  */
 export function crearTargeta(tasca) {
-    const { classe, etiqueta } = PRIORITAT_ESTILS[tasca.prioritat] ?? PRIORITAT_ESTILS.baixa
+    const { classeColor, etiqueta } = PRIORITAT_ESTILS[tasca.prioritat] ?? PRIORITAT_ESTILS.baixa
 
     const article = document.createElement("article")
-    article.className = "targeta"
+    article.className = "bg-slate-700 rounded-lg p-3 border border-slate-600 hover:border-slate-500 transition-colors cursor-grab active:cursor-grabbing"
     article.dataset.id = tasca.id
 
     // Drag & Drop
@@ -73,31 +73,25 @@ export function crearTargeta(tasca) {
 
     // Contingut HTML
     article.innerHTML = `
-        <div class="targeta-cap">
-        <span class="prioritat-badge ${classe}">${etiqueta}</span>
-        <div class="targeta-accions">
-            <button class="btn-editar" title="Editar" aria-label="Editar tasca">✏️</button>
-            <button class="btn-eliminar" title="Eliminar" aria-label="Eliminar tasca">🗑️</button>
-        </div>
+        <div class="flex items-start justify-between gap-2 mb-2">
+            <span class="text-xs font-medium px-2 py-0.5 rounded-full ${classeColor}">${etiqueta}</span>
+            <div class="flex gap-1 shrink-0">
+                <button class="btn-editar text-xs text-slate-400 hover:text-indigo-400 transition-colors px-1.5 py-0.5 rounded hover:bg-slate-700 cursor-pointer" title="Editar" aria-label="Editar tasca">Editar</button>
+                <button class="btn-eliminar text-xs text-slate-400 hover:text-red-400 transition-colors px-1.5 py-0.5 rounded hover:bg-slate-700 cursor-pointer" title="Eliminar" aria-label="Eliminar tasca">Eliminar</button>
+            </div>
         </div>
 
-        <h3 class="targeta-titol">${escapeHtml(tasca.titol)}</h3>
+        <h3 class="text-sm font-semibold text-slate-100 mb-1 leading-snug">${escapeHtml(tasca.titol)}</h3>
 
         ${tasca.descripcio
-        ? `<p class="targeta-descripcio">${escapeHtml(tasca.descripcio)}</p>`
-        : ""}
+            ? `<p class="text-xs text-slate-400 mb-2 leading-relaxed">${escapeHtml(tasca.descripcio)}</p>`
+            : ""}
 
         ${tasca.dataVenciment
-        ? `<p class="targeta-data">📅 ${formatarData(tasca.dataVenciment)}</p>`
-        : ""}
+            ? `<p class="text-xs text-slate-500 mt-2">${formatarData(tasca.dataVenciment)}</p>`
+            : ""}
 
-        <div class="targeta-peu">
-        <select class="selector-estat" aria-label="Canviar estat">
-            <option value="perFer" ${tasca.estat === "perFer" ? "selected" : ""}>Per fer</option>
-            <option value="enCurs" ${tasca.estat === "enCurs" ? "selected" : ""}>En curs</option>
-            <option value="fet" ${tasca.estat === "fet" ? "selected" : ""}>Fet</option>
-        </select>
-        </div>
+        <input type="hidden" class="selector-estat" value="${tasca.estat}" />
     `
 
     // Botons
@@ -105,8 +99,16 @@ export function crearTargeta(tasca) {
     article.querySelector(".btn-eliminar").addEventListener("click", () => {
         if (confirm(`Eliminar la tasca "${tasca.titol}?`)) onEliminar(tasca.id)
     })
-    article.querySelector(".selector-estat").addEventListener("change", (e) => {
-        onCanviarEstat(tasca.id, e.target.value)
+
+    // Listeners
+    article.addEventListener("dragstart", (e) => {
+        e.dataTransfer.effectAllowed = "move"
+        e.dataTransfer.setData("text/plain", tasca.id)
+        setTimeout(() => article.classList.add("dragging"), 0)
+    })
+
+    article.addEventListener("dragend", () => {
+        article.classList.remove("dragging")
     })
 
     return article
@@ -158,23 +160,11 @@ export function actualitzarEstadistiques(tasques) {
     const perFer = tasques.filter((t) => t.estat === "perFer").length
     const enCurs = tasques.filter((t) => t.estat === "enCurs").length
     const fet = tasques.filter((t) => t.estat === "fet").length
-    const percentatge = total > 0 ? Math.round((fet / total) * 100) : 0
 
-    // Header
-    document.getElementById("stat-total").textContent  = total;
-    document.getElementById("stat-perfer").textContent = perFer;
-    document.getElementById("stat-encurs").textContent = enCurs;
-    document.getElementById("stat-fet").textContent    = fet;
-
-    // Panell estadístiques
-    document.getElementById("est-total").textContent   = total;
-    document.getElementById("est-perfer").textContent  = perFer;
-    document.getElementById("est-encurs").textContent  = enCurs;
-    document.getElementById("est-fet").textContent     = fet;
-    document.getElementById("est-pct").textContent     = `${percentatge}%`;
-
-    // Barra de progrés
-    document.getElementById("barra-progres").style.width = `${percentatge}%`;
+    document.getElementById("stat-total").textContent = total
+    document.getElementById("stat-perfer").textContent = perFer
+    document.getElementById("stat-encurs").textContent = enCurs
+    document.getElementById("stat-fet").textContent = fet
 }
 
 /**
@@ -182,7 +172,7 @@ export function actualitzarEstadistiques(tasques) {
  * @param {Array} tasques 
  */
 function actualitzarComptadors(tasques) {
-    document.getElementById("comp-perfer").textContent = 
+    document.getElementById("comp-perfer").textContent =
         tasques.filter((t) => t.estat === "perFer").length
     document.getElementById("comp-encurs").textContent =
         tasques.filter((t) => t.estat === "enCurs").length;
