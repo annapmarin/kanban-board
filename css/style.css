@@ -28,3 +28,18 @@ body {
     color: var(--text-primary);
     font-family: 'DM Sans', sans-serif;
 }
+
+.formulari-ocult {
+    display: none;
+}
+
+.dragging {
+    opacity: .5;
+    transform: scale(.98);
+}
+
+.drag-over {
+    outline: 2px dashed var(--accent);
+    outline-offset: -4px;
+    background-color: rgba(99, 102, 241, 0.05);
+}
